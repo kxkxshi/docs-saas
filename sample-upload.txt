@@ -1,0 +1,6 @@
+# Imported File
+
+This content came from an uploaded text file.
+
+- It should become a new editable document.
+- Formatting should remain readable.
