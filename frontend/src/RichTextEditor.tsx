@@ -67,12 +67,14 @@ interface RichTextEditorProps {
   content: string;
   onChange: (content: string) => void;
   readOnly?: boolean;
+  onSelectionChange?: (text: string) => void;
 }
 
 export function RichTextEditor({
   content,
   onChange,
   readOnly = false,
+  onSelectionChange,
 }: RichTextEditorProps) {
   const editor = useEditor({
     extensions: [
@@ -88,6 +90,15 @@ export function RichTextEditor({
       if (!readOnly) {
         onChange(editor.getHTML());
       }
+    },
+    onSelectionUpdate: ({ editor }) => {
+      if (!onSelectionChange) {
+        return;
+      }
+
+      const { from, to } = editor.state.selection;
+      const selectedText = editor.state.doc.textBetween(from, to, " ").trim();
+      onSelectionChange(selectedText);
     },
     editable: !readOnly,
   });

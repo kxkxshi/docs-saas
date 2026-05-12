@@ -29,10 +29,21 @@ async def get_current_user(
     return user
 
 
-def check_document_access(user_id: int, document, is_owner_only: bool = False):
+def check_document_access(
+    user_id: int,
+    document,
+    is_owner_only: bool = False,
+    required_role: str = "viewer",
+    db: Session | None = None,
+):
     """Check if user has access to document"""
     is_owner = document.owner_id == user_id
-    is_shared = any(u.id == user_id for u in document.shared_with_users)
+    if db is not None and not is_owner:
+        role = crud.get_document_share_role(db, document.id, user_id)
+    else:
+        role = "owner" if is_owner else None
+
+    is_shared = role is not None
     
     if is_owner_only:
         if not is_owner:
@@ -40,5 +51,10 @@ def check_document_access(user_id: int, document, is_owner_only: bool = False):
     else:
         if not (is_owner or is_shared):
             raise HTTPException(status_code=403, detail="Access denied to this document")
+
+        if role not in (None, "owner"):
+            role_levels = {"viewer": 0, "commenter": 1, "editor": 2}
+            if role_levels.get(role, 0) < role_levels.get(required_role, 0):
+                raise HTTPException(status_code=403, detail="Insufficient document permission")
     
     return is_owner

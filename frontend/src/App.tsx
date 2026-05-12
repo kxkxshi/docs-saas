@@ -9,7 +9,7 @@ import {
   type DocumentListItem,
 } from "./api";
 import { Sidebar } from "./Sidebar";
-import { Editor } from "./Editor";
+import { DocumentEditor } from "./DocumentEditor";
 import { styles } from "./styles";
 import { LogOut } from "lucide-react";
 
@@ -215,7 +215,7 @@ function App() {
                 Logout
               </button>
             </div>
-            <Editor
+            <DocumentEditor
               key={selectedDocId}
               docId={selectedDocId}
               focusTitleOnOpen={focusTitleDocId === selectedDocId}
